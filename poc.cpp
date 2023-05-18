@@ -13,10 +13,12 @@ enum body_type { block, mob };
 struct rigid_body {
   body_type type;
 };
+using bodies_set = ecs::sparse_set<rigid_body, max>;
 
 struct lifeness {
   bool alive;
 };
+using alives_set = ecs::sparse_set<lifeness, max>;
 
 class coord {
   unsigned m_x;
@@ -32,26 +34,12 @@ public:
     return m_y * width + m_x;
   }
 
-  void decr_y() noexcept { y--; }
+  constexpr void decr_y() noexcept { m_y--; }
 };
 
 unsigned random(unsigned n) { return rand() % n; }
 
-int main() {
-  // This seed gave a good scenario in my system (before mob movement):
-  //
-  // ##########
-  // #@       #
-  // #@       #
-  // #  @ @  @#
-  // ##########
-  //
-  // One entity can't walk, three can, one will attack
-  srand(69);
-
-  ecs::sparse_set<rigid_body, max> bodies{};
-  ecs::sparse_set<lifeness, max> alives{};
-
+void gen_map(bodies_set &bodies) {
   // Simulates bodies from a map
   for (auto x = 0U; x < width; x++) {
     bodies.add(coord{x, 0}, rigid_body{block});
@@ -61,7 +49,8 @@ int main() {
     bodies.add(coord{0, y}, rigid_body{block});
     bodies.add(coord{width - 1, y}, rigid_body{block});
   }
-
+}
+void gen_mobs(bodies_set &bodies, alives_set &alives) {
   // Simulates picking random position for new mobs
   for (auto i = 0; i < mob_count; i++) {
     coord c{};
@@ -72,7 +61,9 @@ int main() {
     bodies.add(c, rigid_body{mob});
     alives.add(c, lifeness{true});
   }
+}
 
+void move_mobs(const bodies_set &bodies, alives_set &alives) {
   // Simulates mob movement
   // All mob wants to go to up and kills on contact
   for (auto [alive, id] : alives) {
@@ -83,11 +74,11 @@ int main() {
       // alives--?
       continue;
     }
-    // remove body
-    // add body
+    // add desired target
   }
-  // remove dead alives
+}
 
+void output(const bodies_set &bodies, const alives_set &alives) {
   // Simulates output
   char out[height * width];
   for (auto &o : out)
@@ -105,4 +96,29 @@ int main() {
     fwrite(out + y * width, 1, width, stdout);
     puts("");
   }
+}
+
+int main() {
+  // This seed gave a good scenario in my system (before mob movement):
+  //
+  // ##########
+  // #@       #
+  // #@       #
+  // #  @ @  @#
+  // ##########
+  //
+  // One entity can't walk, three can, one will attack
+  srand(69);
+
+  ecs::sparse_set<rigid_body, max> bodies{};
+  ecs::sparse_set<lifeness, max> alives{};
+
+  gen_map(bodies);
+  gen_mobs(bodies, alives);
+  move_mobs(bodies, alives);
+
+  // remove dead alives
+  // move to targets
+
+  output(bodies, alives);
 }
