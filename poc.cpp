@@ -14,9 +14,16 @@ template <typename Tp, unsigned Max> class sparse_set {
   unsigned m_n{};
 
 public:
-  constexpr void add(unsigned id, Tp &&v) {}
+  constexpr void add(unsigned id, Tp &&v) {
+    // TODO: delete "dense" if `id` exists?
 
-  [[nodiscard]] constexpr bool has(unsigned id) const { return false; }
+    m_dense[m_n++] = {v, id};
+    m_sparse[id] = m_n;
+  }
+
+  [[nodiscard]] constexpr bool has(unsigned id) const {
+    return m_sparse[id] != 0;
+  }
 
   [[nodiscard]] constexpr auto *begin() const { return &m_dense[0]; }
   [[nodiscard]] constexpr auto *end() const { return &m_dense[m_n]; }
@@ -24,8 +31,8 @@ public:
 
 //
 
-constexpr const auto width = 30;
-constexpr const auto height = 20;
+constexpr const auto width = 10;
+constexpr const auto height = 5;
 constexpr const auto max = width * height;
 
 constexpr const auto mob_count = height;
@@ -55,7 +62,7 @@ int main() {
 
   sparse_set<rigid_body, max> bodies{};
 
-  for (auto x = 0U; x < height; x++) {
+  for (auto x = 0U; x < width; x++) {
     bodies.add(coord{x, 0}, rigid_body{block});
     bodies.add(coord{x, height - 1}, rigid_body{block});
   }
