@@ -27,15 +27,17 @@ public:
     for (auto ri = 0U; ri < m_n; ri++) {
       unsigned i = m_n - ri - 1U;
       const auto &[v, id] = m_dense[i];
-      if (!fn(v, id))
-        continue;
-
-      m_sparse[id] = 0;
-      m_n--;
-      if (i != m_n) {
-        m_dense[i] = m_dense[m_n];
-        m_sparse[m_dense[i].id] = i;
-      }
+      if (fn(v, id))
+        remove(id);
+    }
+  }
+  constexpr void remove(unsigned id) {
+    auto index = m_sparse[id] - 1;
+    m_sparse[id] = 0;
+    m_n--;
+    if (index != m_n) {
+      m_dense[index] = m_dense[m_n];
+      m_sparse[m_dense[index].id] = index + 1;
     }
   }
 
@@ -44,26 +46,41 @@ public:
 };
 } // namespace ecs
 
-static_assert([] {
+module :private;
+
+static constexpr auto build_set() {
   ecs::sparse_set<int, 50> set{};
   set.add(20, 99);
   set.add(40, 15);
   set.add(30, 12);
+  return set;
+}
+static constexpr bool check_all(const auto &set) {
+  return set.has(20) && set.has(40) && set.has(30);
+}
 
-  if (!set.has(20) || !set.has(40) || !set.has(30))
-    return false;
-
-  set.remove_if([](auto v, auto id) { return v == 15 && id == 40; });
-  if (!set.has(20) || set.has(40) || !set.has(30))
-    return false;
-
+static_assert([] {
+  auto set = build_set();
+  return check_all(set);
+});
+static_assert([] {
+  auto set = build_set();
+  set.remove(40);
+  return set.has(20) && !set.has(40) && set.has(30);
+}());
+static_assert([] {
+  auto set = build_set();
+  set.remove(30);
+  return set.has(20) && set.has(40) && !set.has(30);
+}());
+static_assert([] {
+  auto set = build_set();
+  set.remove(20);
+  set.remove(40);
+  return !set.has(20) && !set.has(40) && set.has(30);
+}());
+static_assert([] {
+  auto set = build_set();
   set.remove_if([](auto v, auto id) { return v == 12 && id == 30; });
-  if (!set.has(20) || set.has(40) || set.has(30))
-    return false;
-
-  set.remove_if([](auto v, auto id) { return v == 99 && id == 20; });
-  if (set.has(20) || set.has(40) || set.has(30))
-    return false;
-
-  return true;
+  return set.has(20) && set.has(40) && !set.has(30);
 }());
