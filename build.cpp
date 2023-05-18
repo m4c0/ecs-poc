@@ -5,7 +5,7 @@ int main(int argc, char **argv) {
 
   auto m = unit::create<mod>("ecs");
 
-  auto poc = unit::create<exe>("poc");
+  auto poc = unit::create<tool>("poc");
   poc->add_ref(m);
   poc->add_unit("poc");
 
