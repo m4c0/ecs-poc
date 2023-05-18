@@ -39,6 +39,8 @@ public:
 
 unsigned random(unsigned n) { return rand() % n; }
 
+//------ "Systems"
+
 void gen_map(bodies_set &bodies) {
   // Simulates bodies from a map
   for (auto x = 0U; x < width; x++) {
@@ -71,11 +73,19 @@ void move_mobs(const bodies_set &bodies, alives_set &alives) {
     tgt.decr_y();
 
     if (bodies.has(tgt) && alives.has(tgt)) {
-      // alives--?
+      alives.set(tgt, lifeness{false});
       continue;
     }
     // add desired target
   }
+}
+
+void dead_cleanup(bodies_set &bodies, alives_set &alives) {
+  for (auto [a, id] : alives) {
+    if (!a.alive)
+      bodies.remove(id);
+  }
+  alives.remove_if([](auto l, auto id) { return !l.alive; });
 }
 
 void output(const bodies_set &bodies, const alives_set &alives) {
@@ -116,9 +126,9 @@ int main() {
   gen_map(bodies);
   gen_mobs(bodies, alives);
   move_mobs(bodies, alives);
+  output(bodies, alives);
 
-  // remove dead alives
+  dead_cleanup(bodies, alives);
   // move to targets
-
   output(bodies, alives);
 }

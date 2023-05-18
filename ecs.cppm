@@ -13,10 +13,14 @@ export template <typename Tp, unsigned Max> class sparse_set {
 
 public:
   constexpr void add(unsigned id, Tp &&v) {
-    // TODO: delete "dense" if `id` exists?
-
+    // TODO: delete "dense" if `id` exists or fail?
     m_dense[m_n++] = {v, id};
     m_sparse[id] = m_n;
+  }
+
+  constexpr void set(unsigned id, Tp &&v) {
+    // TODO: upsert or fail?
+    m_dense[m_sparse[id] - 1].value = v;
   }
 
   [[nodiscard]] constexpr bool has(unsigned id) const {
