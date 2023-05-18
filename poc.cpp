@@ -52,8 +52,7 @@ int main() {
     bodies.add(c, rigid_body{mob});
   }
 
-  for (auto body : bodies) {
-    const auto &[b, id] = body;
-    printf("%d %d = %d\n", id % width, id / width, b.type);
+  for (auto [body, id] : bodies) {
+    printf("%d %d = %d\n", id % width, id / width, body.type);
   }
 }
