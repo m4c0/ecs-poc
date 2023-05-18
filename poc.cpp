@@ -26,14 +26,27 @@ public:
   constexpr coord() = default;
   constexpr coord(unsigned x, unsigned y) : m_x{x}, m_y{y} {}
 
+  explicit constexpr coord(unsigned i) : m_x{i % width}, m_y{i / width} {}
+
   [[nodiscard]] constexpr operator unsigned() const noexcept {
     return m_y * width + m_x;
   }
+
+  void decr_y() noexcept { y--; }
 };
 
 unsigned random(unsigned n) { return rand() % n; }
 
 int main() {
+  // This seed gave a good scenario in my system (before mob movement):
+  //
+  // ##########
+  // #@       #
+  // #@       #
+  // #  @ @  @#
+  // ##########
+  //
+  // One entity can't walk, three can, one will attack
   srand(69);
 
   ecs::sparse_set<rigid_body, max> bodies{};
@@ -61,12 +74,19 @@ int main() {
   }
 
   // Simulates mob movement
-  // All mob wants to go to 0, 0 and kills on contact
+  // All mob wants to go to up and kills on contact
   for (auto [alive, id] : alives) {
-    // attack target; or
+    coord tgt{id};
+    tgt.decr_y();
+
+    if (bodies.has(tgt) && alives.has(tgt)) {
+      // alives--?
+      continue;
+    }
     // remove body
     // add body
   }
+  // remove dead alives
 
   // Simulates output
   char out[height * width];
