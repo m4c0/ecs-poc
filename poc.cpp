@@ -3,34 +3,6 @@
 
 import ecs;
 
-template <typename Tp, unsigned Max> class sparse_set {
-  struct dense {
-    Tp value;
-    unsigned id;
-  };
-
-  dense m_dense[Max]{};
-  unsigned m_sparse[Max]{};
-  unsigned m_n{};
-
-public:
-  constexpr void add(unsigned id, Tp &&v) {
-    // TODO: delete "dense" if `id` exists?
-
-    m_dense[m_n++] = {v, id};
-    m_sparse[id] = m_n;
-  }
-
-  [[nodiscard]] constexpr bool has(unsigned id) const {
-    return m_sparse[id] != 0;
-  }
-
-  [[nodiscard]] constexpr auto *begin() const { return &m_dense[0]; }
-  [[nodiscard]] constexpr auto *end() const { return &m_dense[m_n]; }
-};
-
-//
-
 constexpr const auto width = 10;
 constexpr const auto height = 5;
 constexpr const auto max = width * height;
@@ -60,7 +32,7 @@ unsigned random(unsigned n) { return rand() % n; }
 int main() {
   srand(69);
 
-  sparse_set<rigid_body, max> bodies{};
+  ecs::sparse_set<rigid_body, max> bodies{};
 
   for (auto x = 0U; x < width; x++) {
     bodies.add(coord{x, 0}, rigid_body{block});
