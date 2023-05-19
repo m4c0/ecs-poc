@@ -1,10 +1,11 @@
 export module ecs:spset;
+import :eid;
 
 namespace ecs {
 export template <typename Tp, unsigned Max> class sparse_set {
   struct dense {
     Tp value;
-    unsigned id;
+    eid id;
   };
 
   dense m_dense[Max]{};
@@ -12,20 +13,18 @@ export template <typename Tp, unsigned Max> class sparse_set {
   unsigned m_n{};
 
 public:
-  constexpr void add(unsigned id, Tp &&v) {
+  constexpr void add(eid id, Tp &&v) {
     // TODO: delete "dense" if `id` exists or fail?
     m_dense[m_n++] = {v, id};
     m_sparse[id] = m_n;
   }
 
-  constexpr void set(unsigned id, Tp &&v) {
+  constexpr void set(eid id, Tp &&v) {
     // TODO: upsert or fail?
     m_dense[m_sparse[id] - 1].value = v;
   }
 
-  [[nodiscard]] constexpr bool has(unsigned id) const {
-    return m_sparse[id] != 0;
-  }
+  [[nodiscard]] constexpr bool has(eid id) const { return m_sparse[id] != 0; }
 
   constexpr void remove_if(auto &&fn) {
     for (auto ri = 0U; ri < m_n; ri++) {
@@ -35,7 +34,7 @@ public:
         remove(id);
     }
   }
-  constexpr void remove(unsigned id) {
+  constexpr void remove(eid id) {
     auto index = m_sparse[id] - 1;
     m_sparse[id] = 0;
     m_n--;
@@ -53,13 +52,14 @@ public:
 namespace {
 static constexpr auto build_set() {
   ecs::sparse_set<int, 50> set{};
-  set.add(20, 99);
-  set.add(40, 15);
-  set.add(30, 12);
+  set.add(ecs::eid{20}, 99);
+  set.add(ecs::eid{40}, 15);
+  set.add(ecs::eid{30}, 12);
   return set;
 }
 static constexpr bool check_all(const auto &set) {
-  return set.has(20) && set.has(40) && set.has(30);
+  return set.has(ecs::eid{20}) && set.has(ecs::eid{40}) &&
+         set.has(ecs::eid{30});
 }
 
 static_assert([] {
@@ -68,23 +68,27 @@ static_assert([] {
 });
 static_assert([] {
   auto set = build_set();
-  set.remove(40);
-  return set.has(20) && !set.has(40) && set.has(30);
+  set.remove(ecs::eid{40});
+  return set.has(ecs::eid{20}) && !set.has(ecs::eid{40}) &&
+         set.has(ecs::eid{30});
 }());
 static_assert([] {
   auto set = build_set();
-  set.remove(30);
-  return set.has(20) && set.has(40) && !set.has(30);
+  set.remove(ecs::eid{30});
+  return set.has(ecs::eid{20}) && set.has(ecs::eid{40}) &&
+         !set.has(ecs::eid{30});
 }());
 static_assert([] {
   auto set = build_set();
-  set.remove(20);
-  set.remove(40);
-  return !set.has(20) && !set.has(40) && set.has(30);
+  set.remove(ecs::eid{20});
+  set.remove(ecs::eid{40});
+  return !set.has(ecs::eid{20}) && !set.has(ecs::eid{40}) &&
+         set.has(ecs::eid{30});
 }());
 static_assert([] {
   auto set = build_set();
   set.remove_if([](auto v, auto id) { return v == 12 && id == 30; });
-  return set.has(20) && set.has(40) && !set.has(30);
+  return set.has(ecs::eid{20}) && set.has(ecs::eid{40}) &&
+         !set.has(ecs::eid{30});
 }());
 } // namespace
