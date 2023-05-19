@@ -20,10 +20,26 @@ template <unsigned Max> class entity_list {
 
 public:
   [[nodiscard]] constexpr eid alloc() {
-    if (m_count == Max)
-      return eid{0};
+    if (m_count < Max) {
+      m_allocated[m_count] = true;
+      return eid{++m_count};
+    }
 
-    return eid{++m_count};
+    for (auto i = 0U; i < Max; i++) {
+      if (!m_allocated[i]) {
+        m_allocated[i] = true;
+        return eid{i + 1};
+      }
+    }
+
+    return eid{0};
+  }
+
+  constexpr void dealloc(eid e) {
+    if (e == m_count)
+      m_count--;
+
+    m_allocated[e - 1] = false;
   }
 };
 } // namespace ecs
@@ -39,5 +55,23 @@ static_assert([] {
   auto b = ents.alloc();
   auto c = ents.alloc();
   return !ents.alloc();
+}());
+static_assert([] {
+  ecs::entity_list<3> ents;
+  auto a = ents.alloc();
+  auto b = ents.alloc();
+  ents.dealloc(ents.alloc());
+  return ents.alloc();
+}());
+static_assert([] {
+  ecs::entity_list<3> ents;
+  auto a = ents.alloc();
+  auto b = ents.alloc();
+  auto c = ents.alloc();
+  ents.dealloc(a);
+  ents.dealloc(b);
+  ents.dealloc(ents.alloc());
+  ents.dealloc(ents.alloc());
+  return ents.alloc();
 }());
 } // namespace
