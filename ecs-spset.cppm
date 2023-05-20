@@ -24,7 +24,7 @@ public:
     m_dense[m_sparse[id] - 1].value = v;
   }
 
-  [[nodiscard]] constexpr auto get(eid id) const noexcept {
+  [[nodiscard]] constexpr Tp get(eid id) const noexcept {
     return has(id) ? m_dense[m_sparse[id] - 1].value : Tp{};
   }
   [[nodiscard]] constexpr bool has(eid id) const { return m_sparse[id] != 0; }
@@ -60,15 +60,12 @@ static constexpr auto build_set() {
   set.add(ecs::eid{30}, 12);
   return set;
 }
-static constexpr bool check_all(const auto &set) {
-  return set.has(ecs::eid{20}) && set.has(ecs::eid{40}) &&
-         set.has(ecs::eid{30});
-}
 
 static_assert([] {
   auto set = build_set();
-  return check_all(set);
-});
+  return set.has(ecs::eid{20}) && set.has(ecs::eid{40}) &&
+         set.has(ecs::eid{30});
+}());
 static_assert([] {
   auto set = build_set();
   set.remove(ecs::eid{40});
