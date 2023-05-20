@@ -1,5 +1,4 @@
 export module ecs:eid;
-import hai;
 
 namespace ecs {
 export class eid {
