@@ -5,7 +5,7 @@
 auto pog() {
   using namespace ecow;
 
-  auto m = unit::create<mod>("ecs");
+  auto m = unit::create<mod>("pog");
   m->add_part("eid");
   m->add_part("grid");
   m->add_part("spset");

@@ -1,6 +1,6 @@
-export module ecs:eid;
+export module pog:eid;
 
-namespace ecs {
+namespace pog {
 export class eid {
   unsigned m_value;
 
@@ -39,29 +39,29 @@ public:
     m_allocated[e - 1] = false;
   }
 };
-} // namespace ecs
+} // namespace pog
 
 namespace {
 static_assert([] {
-  ecs::entity_list<3> ents;
+  pog::entity_list<3> ents;
   return ents.alloc() == 1 && ents.alloc() == 2 && ents.alloc() == 3;
 }());
 static_assert([] {
-  ecs::entity_list<3> ents;
+  pog::entity_list<3> ents;
   auto a = ents.alloc();
   auto b = ents.alloc();
   auto c = ents.alloc();
   return !ents.alloc();
 }());
 static_assert([] {
-  ecs::entity_list<3> ents;
+  pog::entity_list<3> ents;
   auto a = ents.alloc();
   auto b = ents.alloc();
   ents.dealloc(ents.alloc());
   return ents.alloc();
 }());
 static_assert([] {
-  ecs::entity_list<3> ents;
+  pog::entity_list<3> ents;
   auto a = ents.alloc();
   auto b = ents.alloc();
   auto c = ents.alloc();

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-import ecs;
+import pog;
 
 unsigned random(unsigned n) { return rand() % n; }
 
@@ -23,20 +23,20 @@ struct lifeness {
 };
 
 struct ec {
-  ecs::entity_list<max> e;
-  ecs::grid<width, height, max> coords;
-  ecs::sparse_set<rigid_body, max> bodies;
-  ecs::sparse_set<lifeness, max> alives;
+  pog::entity_list<max> e;
+  pog::grid<width, height, max> coords;
+  pog::sparse_set<rigid_body, max> bodies;
+  pog::sparse_set<lifeness, max> alives;
 };
 
 //------ Entity creation
 
-void add_block(ec &ec, ecs::grid_coord c) {
+void add_block(ec &ec, pog::grid_coord c) {
   auto id = ec.e.alloc();
   ec.coords.set(id, c);
   ec.bodies.add(id, rigid_body{block});
 }
-void add_mob(ec &ec, ecs::grid_coord c) {
+void add_mob(ec &ec, pog::grid_coord c) {
   auto id = ec.e.alloc();
   ec.coords.set(id, c);
   ec.bodies.add(id, rigid_body{mob});
@@ -48,19 +48,19 @@ void add_mob(ec &ec, ecs::grid_coord c) {
 void gen_map(ec &ec) {
   // Simulates bodies from a map
   for (auto x = 0U; x < width; x++) {
-    add_block(ec, ecs::grid_coord{x, 0});
-    add_block(ec, ecs::grid_coord{x, height - 1});
+    add_block(ec, pog::grid_coord{x, 0});
+    add_block(ec, pog::grid_coord{x, height - 1});
   }
   for (auto y = 0U; y < height; y++) {
-    add_block(ec, ecs::grid_coord{0, y});
-    add_block(ec, ecs::grid_coord{width - 1, y});
+    add_block(ec, pog::grid_coord{0, y});
+    add_block(ec, pog::grid_coord{width - 1, y});
   }
 }
 
 void gen_mobs(ec &ec) {
   // Simulates picking random position for new mobs
   for (auto i = 0; i < mob_count; i++) {
-    ecs::grid_coord c{};
+    pog::grid_coord c{};
     do {
       c = {random(width), random(height)};
     } while (ec.coords.has(c));
@@ -73,10 +73,10 @@ void move_mobs(ec &ec) {
   // Simulates mob movement
   // All mob wants to go to up and kills on contact
   for (const auto [alive, id] : ec.alives) {
-    ecs::grid_coord c = ec.coords.get(id);
+    pog::grid_coord c = ec.coords.get(id);
     c.y--;
 
-    ecs::eid tgt = ec.coords.get(c);
+    pog::eid tgt = ec.coords.get(c);
 
     if (ec.alives.has(tgt)) {
       ec.alives.set(tgt, lifeness{false});

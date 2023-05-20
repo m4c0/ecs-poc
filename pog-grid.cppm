@@ -1,7 +1,7 @@
-export module ecs:grid;
+export module pog:grid;
 import :eid;
 
-namespace ecs {
+namespace pog {
 export struct grid_coord {
   unsigned x;
   unsigned y;
@@ -40,48 +40,48 @@ public:
     m_i2c[id] = {};
   }
 };
-} // namespace ecs
+} // namespace pog
 
 namespace {
 static constexpr auto build_set() {
-  ecs::grid<8, 5, 50> set{};
-  set.set(ecs::eid{20}, {3, 3});
-  set.set(ecs::eid{40}, {7, 4});
-  set.set(ecs::eid{30}, {1, 2});
+  pog::grid<8, 5, 50> set{};
+  set.set(pog::eid{20}, {3, 3});
+  set.set(pog::eid{40}, {7, 4});
+  set.set(pog::eid{30}, {1, 2});
   return set;
 }
 
 static_assert([] {
   auto set = build_set();
-  return set.has(ecs::eid{20}) && set.has(ecs::eid{40}) &&
-         set.has(ecs::eid{30}) && set.has({3, 3}) && set.has({7, 4}) &&
+  return set.has(pog::eid{20}) && set.has(pog::eid{40}) &&
+         set.has(pog::eid{30}) && set.has({3, 3}) && set.has({7, 4}) &&
          set.has({1, 2});
 }());
 static_assert([] {
   auto set = build_set();
-  set.remove(ecs::eid{40});
-  return set.has(ecs::eid{20}) && !set.has(ecs::eid{40}) &&
-         set.has(ecs::eid{30}) && set.has({3, 3}) && !set.has({7, 4}) &&
+  set.remove(pog::eid{40});
+  return set.has(pog::eid{20}) && !set.has(pog::eid{40}) &&
+         set.has(pog::eid{30}) && set.has({3, 3}) && !set.has({7, 4}) &&
          set.has({1, 2});
 }());
 static_assert([] {
   auto set = build_set();
-  set.remove(ecs::eid{30});
-  return set.has(ecs::eid{20}) && set.has(ecs::eid{40}) &&
-         !set.has(ecs::eid{30}) && set.has({3, 3}) && set.has({7, 4}) &&
+  set.remove(pog::eid{30});
+  return set.has(pog::eid{20}) && set.has(pog::eid{40}) &&
+         !set.has(pog::eid{30}) && set.has({3, 3}) && set.has({7, 4}) &&
          !set.has({1, 2});
 }());
 static_assert([] {
   auto set = build_set();
-  set.remove(ecs::eid{20});
-  set.remove(ecs::eid{40});
-  return !set.has(ecs::eid{20}) && !set.has(ecs::eid{40}) &&
-         set.has(ecs::eid{30}) && !set.has({3, 3}) && !set.has({7, 4}) &&
+  set.remove(pog::eid{20});
+  set.remove(pog::eid{40});
+  return !set.has(pog::eid{20}) && !set.has(pog::eid{40}) &&
+         set.has(pog::eid{30}) && !set.has({3, 3}) && !set.has({7, 4}) &&
          set.has({1, 2});
 }());
 static_assert([] {
   auto set = build_set();
-  set.remove(ecs::eid{20});
+  set.remove(pog::eid{20});
   return !set.get({3, 3});
 }());
 } // namespace
