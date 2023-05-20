@@ -63,6 +63,10 @@ static constexpr auto build_set() {
 
 static_assert([] {
   auto set = build_set();
+  return !set.has(ecs::eid{}) && !set.has(ecs::eid{1});
+}());
+static_assert([] {
+  auto set = build_set();
   return set.has(ecs::eid{20}) && set.has(ecs::eid{40}) &&
          set.has(ecs::eid{30});
 }());
