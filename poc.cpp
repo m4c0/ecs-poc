@@ -138,10 +138,10 @@ int main() {
   gen_mobs(ec);
   output(ec);
 
-  { // "Game loop"
+  // "Game loop"
+  for (auto ticks = 0; ticks < 3; ticks++) {
     move_mobs(ec);
     dead_cleanup(ec);
-    // move to targets
     output(ec);
   }
 }
