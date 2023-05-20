@@ -26,6 +26,10 @@ public:
   [[nodiscard]] constexpr bool has(eid id) const noexcept {
     return m_i2c[id].filled;
   }
+
+  [[nodiscard]] constexpr eid get(grid_coord c) const noexcept {
+    return m_c2i[c.y][c.x];
+  }
   [[nodiscard]] constexpr bool has(grid_coord c) const noexcept {
     return m_c2i[c.y][c.x];
   }
@@ -57,19 +61,27 @@ static_assert([] {
   auto set = build_set();
   set.remove(ecs::eid{40});
   return set.has(ecs::eid{20}) && !set.has(ecs::eid{40}) &&
-         set.has(ecs::eid{30});
+         set.has(ecs::eid{30}) && set.has({3, 3}) && !set.has({7, 4}) &&
+         set.has({1, 2});
 }());
 static_assert([] {
   auto set = build_set();
   set.remove(ecs::eid{30});
   return set.has(ecs::eid{20}) && set.has(ecs::eid{40}) &&
-         !set.has(ecs::eid{30});
+         !set.has(ecs::eid{30}) && set.has({3, 3}) && set.has({7, 4}) &&
+         !set.has({1, 2});
 }());
 static_assert([] {
   auto set = build_set();
   set.remove(ecs::eid{20});
   set.remove(ecs::eid{40});
   return !set.has(ecs::eid{20}) && !set.has(ecs::eid{40}) &&
-         set.has(ecs::eid{30});
+         set.has(ecs::eid{30}) && !set.has({3, 3}) && !set.has({7, 4}) &&
+         set.has({1, 2});
+}());
+static_assert([] {
+  auto set = build_set();
+  set.remove(ecs::eid{20});
+  return !set.get({3, 3});
 }());
 } // namespace
