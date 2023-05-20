@@ -1,0 +1,8 @@
+name: Prepare Deps
+runs:
+  using: composite
+  steps:
+    - uses: m4c0/ecow/.github/actions/checkout@main
+      with:
+        path: pog
+
