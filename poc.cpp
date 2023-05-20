@@ -22,33 +22,25 @@ struct lifeness {
   bool alive;
 };
 
-struct coord {
-  unsigned x;
-  unsigned y;
-};
-
 struct ec {
   ecs::entity_list<max> e;
-  ecs::sparse_set<coord, max> coords;
+  ecs::grid<width, height, max> coords;
   ecs::sparse_set<rigid_body, max> bodies;
   ecs::sparse_set<lifeness, max> alives;
-  ecs::eid map[height][width];
 };
 
 //------ Entity creation
 
-void add_block(ec &ec, coord c) {
+void add_block(ec &ec, ecs::grid_coord c) {
   auto id = ec.e.alloc();
-  ec.coords.add(id, c);
+  ec.coords.set(id, c);
   ec.bodies.add(id, rigid_body{block});
-  ec.map[c.y][c.x] = id;
 }
-void add_mob(ec &ec, coord c) {
+void add_mob(ec &ec, ecs::grid_coord c) {
   auto id = ec.e.alloc();
-  ec.coords.add(id, c);
+  ec.coords.set(id, c);
   ec.bodies.add(id, rigid_body{mob});
   ec.alives.add(id, lifeness{true});
-  ec.map[c.y][c.x] = id;
 }
 
 //------ "Systems"
@@ -56,22 +48,22 @@ void add_mob(ec &ec, coord c) {
 void gen_map(ec &ec) {
   // Simulates bodies from a map
   for (auto x = 0U; x < width; x++) {
-    add_block(ec, coord{x, 0});
-    add_block(ec, coord{x, height - 1});
+    add_block(ec, ecs::grid_coord{x, 0});
+    add_block(ec, ecs::grid_coord{x, height - 1});
   }
   for (auto y = 0U; y < height; y++) {
-    add_block(ec, coord{0, y});
-    add_block(ec, coord{width - 1, y});
+    add_block(ec, ecs::grid_coord{0, y});
+    add_block(ec, ecs::grid_coord{width - 1, y});
   }
 }
 
 void gen_mobs(ec &ec) {
   // Simulates picking random position for new mobs
   for (auto i = 0; i < mob_count; i++) {
-    coord c{};
+    ecs::grid_coord c{};
     do {
       c = {random(width), random(height)};
-    } while (ec.map[c.y][c.x]);
+    } while (ec.coords.has(c));
 
     add_mob(ec, c);
   }
@@ -81,14 +73,16 @@ void move_mobs(ec &ec) {
   // Simulates mob movement
   // All mob wants to go to up and kills on contact
   for (const auto [alive, id] : ec.alives) {
-    coord c = ec.coords.get(id);
-    ecs::eid tgt = ec.map[c.y - 1][c.x];
+    ecs::grid_coord c = ec.coords.get(id);
+    c.y--;
 
-    if (ec.bodies.has(tgt) && ec.alives.has(tgt)) {
+    ecs::eid tgt = ec.coords.get(c);
+
+    if (ec.alives.has(tgt)) {
       ec.alives.set(tgt, lifeness{false});
-      continue;
+    } else if (!ec.bodies.has(tgt)) {
+      // move
     }
-    // add desired target
   }
 }
 
@@ -98,7 +92,6 @@ void dead_cleanup(ec &ec) {
       continue;
 
     auto c = ec.coords.get(id);
-    ec.map[c.y][c.x] = {};
     ec.coords.remove(id);
     ec.bodies.remove(id);
     ec.e.dealloc(id);
@@ -108,18 +101,18 @@ void dead_cleanup(ec &ec) {
 
 void output(const ec &ec) {
   // Simulates output
-  for (auto &row : ec.map) {
+  for (auto y = 0U; y < height; y++) {
     char buf[width + 1];
-    for (auto i = 0; i < width; i++) {
-      auto id = row[i];
+    for (auto x = 0U; x < width; x++) {
+      auto id = ec.coords.get({x, y});
       if (!id) {
-        buf[i] = ' ';
+        buf[x] = ' ';
       } else if (ec.bodies.get(id).type == block) {
-        buf[i] = '#';
+        buf[x] = '#';
       } else if (ec.alives.has(id)) {
-        buf[i] = '@';
+        buf[x] = '@';
       } else {
-        buf[i] = '*';
+        buf[x] = '*';
       }
     }
     puts(buf);
@@ -142,10 +135,12 @@ int main() {
 
   gen_map(ec);
   gen_mobs(ec);
-  move_mobs(ec);
   output(ec);
 
-  dead_cleanup(ec);
-  // move to targets
-  output(ec);
+  { // "Game loop"
+    move_mobs(ec);
+    dead_cleanup(ec);
+    // move to targets
+    output(ec);
+  }
 }
