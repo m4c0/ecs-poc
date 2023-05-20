@@ -81,7 +81,8 @@ void move_mobs(ec &ec) {
     if (ec.alives.has(tgt)) {
       ec.alives.set(tgt, lifeness{false});
     } else if (!ec.bodies.has(tgt)) {
-      // move
+      ec.coords.remove(id);
+      ec.coords.set(id, c);
     }
   }
 }
