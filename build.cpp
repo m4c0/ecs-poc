@@ -7,6 +7,7 @@ int main(int argc, char **argv) {
   auto m = unit::create<mod>("ecs");
   m->add_wsdep("hai", hai());
   m->add_part("eid");
+  m->add_part("grid");
   m->add_part("spset");
 
   auto poc = unit::create<tool>("poc");
