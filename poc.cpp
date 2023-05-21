@@ -33,12 +33,12 @@ struct ec {
 
 void add_block(ec &ec, pog::grid_coord c) {
   auto id = ec.e.alloc();
-  ec.coords.set(id, c);
+  ec.coords.put(id, c);
   ec.bodies.add(id, rigid_body{block});
 }
 void add_mob(ec &ec, pog::grid_coord c) {
   auto id = ec.e.alloc();
-  ec.coords.set(id, c);
+  ec.coords.put(id, c);
   ec.bodies.add(id, rigid_body{mob});
   ec.alives.add(id, lifeness{true});
 }
@@ -82,7 +82,7 @@ void move_mobs(ec &ec) {
       ec.alives.set(tgt, lifeness{false});
     } else if (!ec.bodies.has(tgt)) {
       ec.coords.remove(id);
-      ec.coords.set(id, c);
+      ec.coords.put(id, c);
     }
   }
 }

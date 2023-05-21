@@ -15,7 +15,7 @@ export template <unsigned W, unsigned H, unsigned Max> class grid {
   eid m_c2i[H][W]{};
 
 public:
-  constexpr void set(eid id, grid_coord c) {
+  constexpr void put(eid id, grid_coord c) {
     m_i2c[id] = {c.x, c.y, true};
     m_c2i[c.y][c.x] = id;
   }
@@ -45,9 +45,9 @@ public:
 namespace {
 static constexpr auto build_set() {
   pog::grid<8, 5, 50> set{};
-  set.set(pog::eid{20}, {3, 3});
-  set.set(pog::eid{40}, {7, 4});
-  set.set(pog::eid{30}, {1, 2});
+  set.put(pog::eid{20}, {3, 3});
+  set.put(pog::eid{40}, {7, 4});
+  set.put(pog::eid{30}, {1, 2});
   return set;
 }
 
