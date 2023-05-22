@@ -13,6 +13,12 @@ public:
 
   constexpr bool has(eid id) const noexcept { return m_id == id; }
 
+  constexpr void remove(eid id) noexcept {
+    if (has(id)) {
+      *this = {};
+    }
+  }
+
   constexpr void set(eid id, Tp value) noexcept {
     m_id = id;
     m_value = value;
@@ -35,5 +41,17 @@ static_assert([] {
   l.set(pog::eid{3}, 99L);
   return l.get(pog::eid{3}) == 99L && l.get(pog::eid{1}) == 0L &&
          l.get(pog::eid{}) == 0L;
+}());
+static_assert([] {
+  pog::singleton<long> l;
+  l.set(pog::eid{11}, 0L);
+  l.remove(pog::eid{12});
+  return l.has(pog::eid{11}) && !l.has(pog::eid{12});
+}());
+static_assert([] {
+  pog::singleton<long> l;
+  l.set(pog::eid{11}, 0L);
+  l.remove(pog::eid{11});
+  return !l.has(pog::eid{11}) && !l.has(pog::eid{12});
 }());
 } // namespace
