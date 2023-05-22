@@ -49,6 +49,7 @@ public:
 
   [[nodiscard]] constexpr auto *begin() const { return &m_dense[0]; }
   [[nodiscard]] constexpr auto *end() const { return &m_dense[m_n]; }
+  [[nodiscard]] constexpr auto size() const { return m_n; }
 };
 } // namespace pog
 
