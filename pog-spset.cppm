@@ -47,9 +47,11 @@ public:
     }
   }
 
-  [[nodiscard]] constexpr auto *begin() const { return &m_dense[0]; }
-  [[nodiscard]] constexpr auto *end() const { return &m_dense[m_n]; }
-  [[nodiscard]] constexpr auto size() const { return m_n; }
+  [[nodiscard]] constexpr auto *begin() const noexcept { return &m_dense[0]; }
+  [[nodiscard]] constexpr auto *end() const noexcept { return &m_dense[m_n]; }
+  [[nodiscard]] constexpr auto *begin() noexcept { return &m_dense[0]; }
+  [[nodiscard]] constexpr auto *end() noexcept { return &m_dense[m_n]; }
+  [[nodiscard]] constexpr auto size() const noexcept { return m_n; }
 };
 } // namespace pog
 
