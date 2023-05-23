@@ -38,8 +38,12 @@ public:
     }
   }
   constexpr void remove(eid id) {
-    auto index = m_sparse[id] - 1;
-    m_sparse[id] = 0;
+    auto &sid = m_sparse[id];
+    if (!sid)
+      return;
+
+    auto index = sid - 1;
+    sid = 0;
     m_n--;
     if (index != m_n) {
       m_dense[index] = m_dense[m_n];
@@ -97,5 +101,10 @@ static_assert([] {
   set.remove_if([](auto v, auto id) { return v == 12 && id == 30; });
   return set.has(pog::eid{20}) && set.has(pog::eid{40}) &&
          !set.has(pog::eid{30});
+}());
+static_assert([] {
+  build_set().remove(pog::eid{});
+  build_set().remove(pog::eid{1});
+  return true;
 }());
 } // namespace
