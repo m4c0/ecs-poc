@@ -38,6 +38,9 @@ public:
     }
   }
   constexpr void remove(eid id) {
+    if (!id)
+      return;
+
     auto &sid = m_sparse[id];
     if (!sid)
       return;
