@@ -39,6 +39,9 @@ public:
   }
 
   constexpr void remove(eid id) {
+    if (!has(id))
+      return;
+
     auto c = m_i2c[id];
     m_c2i[c.y][c.x] = {};
     m_i2c[id] = {};
