@@ -19,7 +19,7 @@ public:
     m_sparse[id] = m_n;
   }
 
-  constexpr void set(eid id, Tp v) {
+  constexpr void update(eid id, Tp v) {
     // TODO: upsert or fail?
     m_dense[m_sparse[id] - 1].value = v;
   }
