@@ -19,6 +19,10 @@ public:
     m_i2c[id] = {c.x, c.y, true};
     m_c2i[c.y][c.x] = id;
   }
+  constexpr void update(eid id, grid_coord c) {
+    remove(id);
+    put(id, c);
+  }
 
   [[nodiscard]] constexpr grid_coord get(eid id) const noexcept {
     return m_i2c[id];
