@@ -79,7 +79,7 @@ void move_mobs(ec &ec) {
     pog::eid tgt = ec.coords.get(c);
 
     if (ec.alives.has(tgt)) {
-      ec.alives.set(tgt, lifeness{false});
+      ec.alives.add(tgt, lifeness{false});
     } else if (!ec.bodies.has(tgt)) {
       ec.coords.remove(id);
       ec.coords.put(id, c);
