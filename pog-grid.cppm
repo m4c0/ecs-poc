@@ -6,6 +6,9 @@ export struct grid_coord {
   unsigned x;
   unsigned y;
 };
+export constexpr bool operator==(const grid_coord &a, const grid_coord &b) {
+  return a.x == b.x && a.y == b.y;
+}
 export template <unsigned W, unsigned H, unsigned Max> class grid {
   struct c_map : grid_coord {
     bool filled;
