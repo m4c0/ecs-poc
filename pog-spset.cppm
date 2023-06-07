@@ -29,6 +29,14 @@ public:
   }
   [[nodiscard]] constexpr bool has(eid id) const { return m_sparse[id] != 0; }
 
+  constexpr void for_each_r(auto &&fn) {
+    for (auto ri = 0U; ri < m_n; ri++) {
+      unsigned i = m_n - ri - 1U;
+      const auto &[v, id] = m_dense[i];
+      fn(v, id);
+    }
+  }
+
   constexpr void remove_if(auto &&fn) {
     for (auto ri = 0U; ri < m_n; ri++) {
       unsigned i = m_n - ri - 1U;
