@@ -49,9 +49,6 @@ public:
     if (!id)
       return;
 
-    m_sparse[id] = 0;
-    return;
-
     auto &sid = m_sparse[id];
     if (!sid)
       return;
@@ -83,7 +80,13 @@ static constexpr auto build_set() {
 }
 static constexpr bool set_matches(const pog::sparse_set<int, 50> &set,
                                   auto... ids) {
-  return (set.has(pog::eid{static_cast<unsigned>(ids)}) && ...);
+  if (!(set.has(pog::eid{static_cast<unsigned>(ids)}) && ...))
+    throw 0;
+
+  if (set.size() != sizeof...(ids))
+    throw 1;
+
+  return true;
 }
 
 static_assert([] {
