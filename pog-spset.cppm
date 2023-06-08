@@ -38,12 +38,10 @@ public:
   }
 
   constexpr void remove_if(auto &&fn) {
-    for (auto ri = 0U; ri < m_n; ri++) {
-      unsigned i = m_n - ri - 1U;
-      const auto &[v, id] = m_dense[i];
+    for_each_r([&](auto v, auto id) {
       if (fn(v, id))
         remove(id);
-    }
+    });
   }
   constexpr void remove(eid id) {
     if (!id)
