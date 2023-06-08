@@ -86,6 +86,13 @@ static constexpr bool set_matches(const pog::sparse_set<int, 50> &set,
   if (set.size() != sizeof...(ids))
     throw 1;
 
+  auto p = set.begin();
+  unsigned ns[] = {static_cast<unsigned>(ids)...};
+  for (auto n : ns) {
+    if ((p++)->id != pog::eid{n})
+      throw 2;
+  }
+
   return true;
 }
 
@@ -95,7 +102,7 @@ static_assert([] {
 }());
 static_assert([] {
   auto set = build_set();
-  return set_matches(set, 20, 30, 40);
+  return set_matches(set, 20, 40, 30);
 }());
 static_assert([] {
   auto set = build_set();
