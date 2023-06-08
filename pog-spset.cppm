@@ -114,6 +114,12 @@ static_assert([] {
          !set.has(pog::eid{30});
 }());
 static_assert([] {
+  auto set = build_set();
+  set.remove_if([](auto v, auto id) { return true; });
+  return !set.has(pog::eid{20}) && !set.has(pog::eid{40}) &&
+         !set.has(pog::eid{30});
+}());
+static_assert([] {
   build_set().remove(pog::eid{});
   build_set().remove(pog::eid{1});
   return true;
