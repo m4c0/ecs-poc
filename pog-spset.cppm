@@ -30,9 +30,8 @@ public:
   [[nodiscard]] constexpr bool has(eid id) const { return m_sparse[id] != 0; }
 
   constexpr void for_each_r(auto &&fn) {
-    for (auto ri = 0U; ri < m_n; ri++) {
-      unsigned i = m_n - ri - 1U;
-      const auto &[v, id] = m_dense[i];
+    for (auto ri = m_n; ri != 0; ri--) {
+      const auto &[v, id] = m_dense[ri - 1];
       fn(v, id);
     }
   }
