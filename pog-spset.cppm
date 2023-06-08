@@ -73,9 +73,9 @@ public:
 namespace {
 static constexpr auto build_set() {
   pog::sparse_set<int, 50> set{};
-  set.add(pog::eid{20}, 99);
-  set.add(pog::eid{40}, 15);
-  set.add(pog::eid{30}, 12);
+  set.add(pog::eid{20}, 2);
+  set.add(pog::eid{40}, 4);
+  set.add(pog::eid{30}, 3);
   return set;
 }
 static constexpr bool set_matches(const pog::sparse_set<int, 50> &set,
@@ -89,8 +89,11 @@ static constexpr bool set_matches(const pog::sparse_set<int, 50> &set,
   auto p = set.begin();
   unsigned ns[] = {static_cast<unsigned>(ids)...};
   for (auto n : ns) {
-    if ((p++)->id != pog::eid{n})
+    const auto &[v, id] = *p++;
+    if (id != pog::eid{n})
       throw 2;
+    if (v != n / 10)
+      throw 3;
   }
 
   return true;
@@ -122,7 +125,14 @@ static_assert([] {
 }());
 static_assert([] {
   auto set = build_set();
-  set.remove_if([](auto v, auto id) { return v == 12 && id == 30; });
+  set.remove(pog::eid{20});
+  set.remove(pog::eid{40});
+  set.remove(pog::eid{30});
+  return set_matches(set);
+}());
+static_assert([] {
+  auto set = build_set();
+  set.remove_if([](auto v, auto id) { return v == 3 && id == 30; });
   return set_matches(set, 20, 40);
 }());
 static_assert([] {
