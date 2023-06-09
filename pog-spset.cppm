@@ -68,6 +68,17 @@ public:
     m_n--;
   }
 
+  constexpr void sort(auto &&fn) {
+    for (auto i = 0U; i < m_n; i++) {
+      for (auto j = i + 1; j < m_n; j++) {
+        auto a = m_dense[i].value;
+        auto b = m_dense[j].value;
+        if (fn(a, b) > 0)
+          swap(i, j);
+      }
+    }
+  }
+
   [[nodiscard]] constexpr auto *begin() const noexcept { return &m_dense[0]; }
   [[nodiscard]] constexpr auto *end() const noexcept { return &m_dense[m_n]; }
   [[nodiscard]] constexpr auto *begin() noexcept { return &m_dense[0]; }
@@ -112,6 +123,11 @@ static_assert([] {
 static_assert([] {
   auto set = build_set();
   return set_matches(set, 20, 40, 30);
+}());
+static_assert([] {
+  auto set = build_set();
+  set.sort([](auto a, auto b) { return a - b; });
+  return set_matches(set, 20, 30, 40);
 }());
 static_assert([] {
   auto set = build_set();
