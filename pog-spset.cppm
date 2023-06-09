@@ -136,6 +136,13 @@ static_assert([] {
 }());
 static_assert([] {
   auto set = build_set();
+  set.remove(pog::eid{20});
+  set.add(pog::eid{10}, 1);
+  set.sort([](auto a, auto b) { return a - b; });
+  return set_matches(set, 10, 30, 40);
+}());
+static_assert([] {
+  auto set = build_set();
   set.remove(pog::eid{30});
   return set_matches(set, 20, 40);
 }());
@@ -160,7 +167,18 @@ static_assert([] {
 static_assert([] {
   auto set = build_set();
   set.remove_if([](auto v, auto id) { return true; });
+  set.sort([](auto a, auto b) { return a - b; });
   return set_matches(set);
+}());
+static_assert([] {
+  auto set = build_set();
+  set.remove_if([](auto v, auto id) { return true; });
+  set.add(pog::eid{40}, 4);
+  set.add(pog::eid{30}, 3);
+  set.add(pog::eid{20}, 2);
+  set.add(pog::eid{10}, 1);
+  set.sort([](auto a, auto b) { return a - b; });
+  return set_matches(set, 10, 20, 30, 40);
 }());
 static_assert([] {
   build_set().remove(pog::eid{});
