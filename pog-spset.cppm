@@ -12,6 +12,19 @@ export template <typename Tp, unsigned Max> class sparse_set {
   unsigned m_sparse[Max]{}; // contains id+1
   unsigned m_n{};
 
+  static constexpr void swapy(auto &a, auto &b) noexcept {
+    auto tmp = a;
+    a = b;
+    b = tmp;
+  }
+  constexpr void swap(unsigned a, unsigned b) noexcept {
+    if (a == b)
+      return;
+
+    swapy(m_dense[a], m_dense[b]);
+    swapy(m_sparse[m_dense[a].id], m_sparse[m_dense[b].id]);
+  }
+
 public:
   constexpr void add(eid id, Tp v) {
     // TODO: delete "dense" if `id` exists or fail?
@@ -50,13 +63,9 @@ public:
     if (!sid)
       return;
 
-    auto index = sid - 1;
+    swap(sid - 1, m_n - 1);
     sid = 0;
     m_n--;
-    if (index != m_n) {
-      m_dense[index] = m_dense[m_n];
-      m_sparse[m_dense[index].id] = index + 1;
-    }
   }
 
   [[nodiscard]] constexpr auto *begin() const noexcept { return &m_dense[0]; }
