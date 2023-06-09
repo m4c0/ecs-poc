@@ -9,7 +9,7 @@ export template <typename Tp, unsigned Max> class sparse_set {
   };
 
   dense m_dense[Max]{};
-  unsigned m_sparse[Max]{}; // contains id+1
+  unsigned m_sparse[Max + 1]{}; // contains id+1
   unsigned m_n{};
 
   static constexpr void swapy(auto &a, auto &b) noexcept {
@@ -179,6 +179,10 @@ static_assert([] {
   set.add(pog::eid{10}, 1);
   set.sort([](auto a, auto b) { return a - b; });
   return set_matches(set, 10, 20, 30, 40);
+}());
+static_assert([] {
+  build_set().add(pog::eid{50}, 5);
+  return true;
 }());
 static_assert([] {
   build_set().remove(pog::eid{});
