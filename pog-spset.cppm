@@ -1,5 +1,6 @@
 export module pog:spset;
 import :eid;
+import hai;
 
 namespace pog {
 export template <typename Tp, unsigned Max> class sparse_set {
@@ -8,8 +9,8 @@ export template <typename Tp, unsigned Max> class sparse_set {
     eid id;
   };
 
-  dense m_dense[Max]{};
-  unsigned m_sparse[Max + 1]{}; // contains id+1
+  hai::array<dense> m_dense;
+  hai::array<unsigned> m_sparse;
   unsigned m_n{};
 
   static constexpr void swapy(auto &a, auto &b) noexcept {
@@ -26,6 +27,8 @@ export template <typename Tp, unsigned Max> class sparse_set {
   }
 
 public:
+  explicit constexpr sparse_set() : m_dense{Max}, m_sparse{Max + 1} {}
+
   constexpr void add(eid id, Tp v) {
     // TODO: delete "dense" if `id` exists or fail?
     m_dense[m_n++] = {v, id};
