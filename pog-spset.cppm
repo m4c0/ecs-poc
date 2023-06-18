@@ -3,7 +3,7 @@ import :eid;
 import hai;
 
 namespace pog {
-export template <typename Tp, unsigned Max> class sparse_set {
+export template <typename Tp> class sparse_set {
   struct dense {
     Tp value;
     eid id;
@@ -27,7 +27,8 @@ export template <typename Tp, unsigned Max> class sparse_set {
   }
 
 public:
-  explicit constexpr sparse_set() : m_dense{Max}, m_sparse{Max + 1} {}
+  explicit constexpr sparse_set(unsigned max)
+      : m_dense{max}, m_sparse{max + 1} {}
 
   constexpr void add(eid id, Tp v) {
     // TODO: delete "dense" if `id` exists or fail?
@@ -92,13 +93,13 @@ public:
 
 namespace {
 static constexpr auto build_set() {
-  pog::sparse_set<int, 50> set{};
+  pog::sparse_set<int> set{50};
   set.add(pog::eid{20}, 2);
   set.add(pog::eid{40}, 4);
   set.add(pog::eid{30}, 3);
   return set;
 }
-static constexpr bool set_matches(const pog::sparse_set<int, 50> &set,
+static constexpr bool set_matches(const pog::sparse_set<int> &set,
                                   auto... ids) {
   if (!(set.has(pog::eid{static_cast<unsigned>(ids)}) && ...))
     throw 0;
