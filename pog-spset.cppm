@@ -27,8 +27,9 @@ export template <typename Tp> class sparse_set {
   }
 
 public:
-  explicit constexpr sparse_set(unsigned max)
-      : m_dense{max}, m_sparse{max + 1} {}
+  explicit constexpr sparse_set(unsigned max) : sparse_set(max, max) {}
+  explicit constexpr sparse_set(unsigned max_c, unsigned max_e)
+      : m_dense{max_c}, m_sparse{max_e + 1} {}
 
   constexpr void add(eid id, Tp v) {
     // TODO: delete "dense" if `id` exists or fail?
