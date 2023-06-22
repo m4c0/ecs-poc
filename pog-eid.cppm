@@ -1,4 +1,5 @@
 export module pog:eid;
+import hai;
 
 namespace pog {
 export class eid {
@@ -12,32 +13,27 @@ public:
 };
 
 export template <unsigned Max> class entity_list {
-  bool m_allocated[Max]{};
-  unsigned m_count{};
+  hai::varray<bool> m_allocs{Max};
 
 public:
   [[nodiscard]] constexpr eid alloc() {
-    if (m_count < Max) {
-      m_allocated[m_count] = true;
-      return eid{++m_count};
+    if (m_allocs.size() < Max) {
+      m_allocs.push_back(true);
+      return eid{m_allocs.size()};
     }
 
-    for (auto i = 0U; i < Max; i++) {
-      if (!m_allocated[i]) {
-        m_allocated[i] = true;
-        return eid{i + 1};
-      }
+    for (auto i = 0U; i < m_allocs.size(); i++) {
+      if (m_allocs[i])
+        continue;
+
+      m_allocs[i] = true;
+      return eid{i + 1};
     }
 
     return eid{0};
   }
 
-  constexpr void dealloc(eid e) {
-    if (e == m_count)
-      m_count--;
-
-    m_allocated[e - 1] = false;
-  }
+  constexpr void dealloc(eid e) { m_allocs[e - 1] = false; }
 };
 } // namespace pog
 
