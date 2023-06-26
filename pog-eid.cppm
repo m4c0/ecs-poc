@@ -2,6 +2,8 @@ export module pog:eid;
 import hai;
 
 namespace pog {
+export class marker {};
+
 export class eid {
   unsigned m_value;
 

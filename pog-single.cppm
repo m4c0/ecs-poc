@@ -2,7 +2,7 @@ export module pog:single;
 import :eid;
 
 namespace pog {
-export template <typename Tp> class singleton {
+export template <typename Tp = marker> class singleton {
   Tp m_value{};
   eid m_id{};
 
