@@ -54,6 +54,13 @@ public:
     }
     return false;
   }
+  [[nodiscard]] constexpr bool has_in(aabb area) {
+    for (auto &[_, a] : m_chunk) {
+      if (intersect(a, area))
+        return true;
+    }
+    return false;
+  }
 
   constexpr void remove(eid id) {
     for (auto i = 0; i < m_chunk.size(); i++) {
