@@ -7,29 +7,42 @@ struct coord {
   float x;
   float y;
 };
+struct aabb {
+  coord aa;
+  coord bb;
+};
+[[nodiscard]] constexpr auto intersect(aabb n, aabb o) noexcept {
+  if (n.bb.x < o.aa.x)
+    return false;
+  if (o.bb.x < n.aa.x)
+    return false;
+  if (n.bb.y < o.aa.y)
+    return false;
+  if (o.bb.y < n.aa.y)
+    return false;
+  return true;
+}
 
 class quadtree {
   static constexpr const auto chunk_size = 1024;
   struct pair {
     eid id;
-    coord c;
+    aabb area;
   };
   // TODO: organise chunks into a quad-tree
   hai::varray<pair> m_chunk{chunk_size};
 
 public:
-  constexpr void add(eid id, coord c) { m_chunk.push_back(pair{id, c}); }
+  constexpr void add(eid id, aabb area) { m_chunk.push_back(pair{id, area}); }
 
-  constexpr void for_each_in(coord aa, coord bb, auto &&fn) {
+  constexpr void for_each_in(aabb area, auto &&fn) {
     for (auto i = 0; i < m_chunk.size(); i++) {
-      auto &[id, c] = m_chunk[i];
+      auto &[id, a] = m_chunk[i];
 
-      if (c.x < aa.x || c.x > bb.x)
-        continue;
-      if (c.y < aa.y || c.y > bb.y)
+      if (!intersect(a, area))
         continue;
 
-      fn(id, c);
+      fn(id, a);
       i--;
     }
   }
@@ -57,15 +70,15 @@ public:
 namespace {
 static_assert([] {
   pog::quadtree q{};
-  q.add(pog::eid{10}, {3.5f, -1.2f});
-  q.add(pog::eid{20}, {3.5f, 100.f});
-  q.add(pog::eid{30}, {300.f, -1.2f});
+  q.add(pog::eid{10}, {{3.5f, -1.2f}, {3.5f, -1.2f}});
+  q.add(pog::eid{20}, {{3.5f, 100.f}, {3.5f, 100.f}});
+  q.add(pog::eid{30}, {{300.f, -1.2f}, {300.f, -1.2f}});
   if (!q.has(pog::eid{20}))
     throw 0;
   if (q.has(pog::eid{}))
     throw 1;
 
-  q.for_each_in({0.0f, 0.0f}, {300.0f, 200.0f},
+  q.for_each_in({{0.0f, 0.0f}, {300.0f, 200.0f}},
                 [&](auto eid, auto c) { q.remove(eid); });
   if (!q.has(pog::eid{10}))
     throw 1;
