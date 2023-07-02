@@ -36,14 +36,18 @@ public:
   constexpr void add(eid id, aabb area) { m_chunk.push_back(pair{id, area}); }
 
   constexpr void for_each_in(aabb area, auto &&fn) {
-    for (auto i = 0; i < m_chunk.size(); i++) {
+    auto size = m_chunk.size();
+    for (auto i = 0; i < size; i++) {
       auto &[id, a] = m_chunk[i];
 
       if (!intersect(a, area))
         continue;
 
       fn(id, a);
-      i--;
+      if (size != m_chunk.size()) {
+        i--;
+        size = m_chunk.size();
+      }
     }
   }
   constexpr void for_each_in(aabb area, auto &&fn) const {
@@ -54,7 +58,6 @@ public:
         continue;
 
       fn(id, a);
-      i--;
     }
   }
 
@@ -104,14 +107,35 @@ static_assert([] {
   if (q.has(pog::eid{}))
     throw 1;
 
+  auto size = 0;
+  q.for_each_in({{-1000.0f, -1000.0f}, {1000.0f, 1000.0f}},
+                [&](auto, auto) { size++; });
+  if (size != 3)
+    throw 1;
+
   q.for_each_in({{0.0f, 0.0f}, {300.0f, 200.0f}},
                 [&](auto eid, auto c) { q.remove(eid); });
   if (!q.has(pog::eid{10}))
     throw 1;
   if (q.has(pog::eid{20}))
     throw 1;
-  if (!q.has(pog::eid{10}))
+  if (!q.has(pog::eid{30}))
     throw 1;
   return true;
 }());
-}
+static_assert([] {
+  pog::quadtree q{};
+  q.add(pog::eid{10}, {{3.5f, -1.2f}, {3.5f, -1.2f}});
+  q.add(pog::eid{20}, {{3.5f, 100.f}, {3.5f, 100.f}});
+  q.add(pog::eid{30}, {{300.f, -1.2f}, {300.f, -1.2f}});
+  q.for_each_in({{-1000.0f, -1000.0f}, {1000.0f, 1000.0f}},
+                [&](auto id, auto) { q.remove(id); });
+  if (q.has(pog::eid{10}))
+    throw 1;
+  if (q.has(pog::eid{20}))
+    throw 1;
+  if (q.has(pog::eid{30}))
+    throw 1;
+  return true;
+}());
+} // namespace
