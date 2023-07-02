@@ -47,14 +47,22 @@ public:
     }
   }
 
-  [[nodiscard]] constexpr bool has(eid id) {
+  [[nodiscard]] constexpr aabb get(eid id) const noexcept {
+    for (auto &[cid, v] : m_chunk) {
+      if (id == cid)
+        return v;
+    }
+    return {};
+  }
+
+  [[nodiscard]] constexpr bool has(eid id) const noexcept {
     for (auto &[cid, _] : m_chunk) {
       if (id == cid)
         return true;
     }
     return false;
   }
-  [[nodiscard]] constexpr bool has_in(aabb area) {
+  [[nodiscard]] constexpr bool has_in(aabb area) const noexcept {
     for (auto &[_, a] : m_chunk) {
       if (intersect(a, area))
         return true;
