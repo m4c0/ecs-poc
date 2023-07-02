@@ -23,7 +23,7 @@ struct aabb {
   return true;
 }
 
-class quadtree {
+export class quadtree {
   static constexpr const auto chunk_size = 1024;
   struct pair {
     eid id;
