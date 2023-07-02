@@ -46,6 +46,17 @@ public:
       i--;
     }
   }
+  constexpr void for_each_in(aabb area, auto &&fn) const {
+    for (auto i = 0; i < m_chunk.size(); i++) {
+      auto &[id, a] = m_chunk[i];
+
+      if (!intersect(a, area))
+        continue;
+
+      fn(id, a);
+      i--;
+    }
+  }
 
   [[nodiscard]] constexpr aabb get(eid id) const noexcept {
     for (auto &[cid, v] : m_chunk) {
