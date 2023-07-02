@@ -3,11 +3,11 @@ import :eid;
 import hai;
 
 namespace pog {
-struct coord {
+export struct coord {
   float x;
   float y;
 };
-struct aabb {
+export struct aabb {
   coord aa;
   coord bb;
 };
