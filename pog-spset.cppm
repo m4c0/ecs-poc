@@ -3,9 +3,13 @@ import :eid;
 import hai;
 
 namespace pog {
+// TODO: consider a different structure to store the "sparse index"
 export template <typename Tp> class sparse_set {
   static constexpr const auto initial_dense_cap = 16;
   static constexpr const auto dense_cap_increase = 16;
+
+  static constexpr const auto initial_sparse_cap = 16;
+  static constexpr const auto sparse_cap_increase = 16;
 
   struct dense {
     Tp value;
@@ -29,13 +33,15 @@ export template <typename Tp> class sparse_set {
   }
 
 public:
-  explicit constexpr sparse_set(unsigned max_e)
-      : m_dense{initial_dense_cap}, m_sparse{max_e + 1} {}
+  explicit constexpr sparse_set()
+      : m_dense{initial_dense_cap}, m_sparse{initial_sparse_cap} {}
 
   constexpr void add(eid id, Tp v) {
     // TODO: delete "dense" if `id` exists or fail?
     if (m_dense.size() == m_dense.capacity())
       m_dense.add_capacity(dense_cap_increase);
+    if (m_sparse.size() < id + 1)
+      m_sparse.add_capacity(id - m_sparse.size() + sparse_cap_increase);
 
     m_dense.push_back(dense{v, id});
     m_sparse[id] = m_dense.size();
@@ -100,7 +106,7 @@ public:
 
 namespace {
 static constexpr auto build_set() {
-  pog::sparse_set<int> set{50};
+  pog::sparse_set<int> set{};
   set.add(pog::eid{20}, 2);
   set.add(pog::eid{40}, 4);
   set.add(pog::eid{30}, 3);
