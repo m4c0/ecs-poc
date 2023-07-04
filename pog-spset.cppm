@@ -4,6 +4,9 @@ import hai;
 
 namespace pog {
 export template <typename Tp> class sparse_set {
+  static constexpr const auto initial_dense_cap = 16;
+  static constexpr const auto dense_cap_increase = 16;
+
   struct dense {
     Tp value;
     eid id;
@@ -26,14 +29,14 @@ export template <typename Tp> class sparse_set {
   }
 
 public:
-  explicit constexpr sparse_set(unsigned max) : sparse_set(max, max) {}
-  explicit constexpr sparse_set(unsigned max_c, unsigned max_e)
-      : m_dense{max_c}, m_sparse{max_e + 1} {}
+  explicit constexpr sparse_set(unsigned max_e)
+      : m_dense{initial_dense_cap}, m_sparse{max_e + 1} {}
 
   constexpr void add(eid id, Tp v) {
     // TODO: delete "dense" if `id` exists or fail?
     if (m_dense.size() == m_dense.capacity())
-      m_dense.add_capacity(m_dense.capacity());
+      m_dense.add_capacity(dense_cap_increase);
+
     m_dense.push_back(dense{v, id});
     m_sparse[id] = m_dense.size();
   }
