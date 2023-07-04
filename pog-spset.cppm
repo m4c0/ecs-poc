@@ -32,6 +32,8 @@ public:
 
   constexpr void add(eid id, Tp v) {
     // TODO: delete "dense" if `id` exists or fail?
+    if (m_dense.size() == m_dense.capacity())
+      m_dense.add_capacity(m_dense.capacity());
     m_dense.push_back(dense{v, id});
     m_sparse[id] = m_dense.size();
   }
