@@ -9,9 +9,8 @@ export template <typename Tp> class sparse_set {
     eid id;
   };
 
-  hai::array<dense> m_dense;
+  hai::varray<dense> m_dense;
   hai::array<unsigned> m_sparse;
-  unsigned m_n{};
 
   static constexpr void swapy(auto &a, auto &b) noexcept {
     auto tmp = a;
@@ -33,8 +32,8 @@ public:
 
   constexpr void add(eid id, Tp v) {
     // TODO: delete "dense" if `id` exists or fail?
-    m_dense[m_n++] = {v, id};
-    m_sparse[id] = m_n;
+    m_dense.push_back(dense{v, id});
+    m_sparse[id] = m_dense.size();
   }
 
   constexpr void update(eid id, Tp v) {
@@ -48,7 +47,7 @@ public:
   [[nodiscard]] constexpr bool has(eid id) const { return m_sparse[id] != 0; }
 
   constexpr void for_each_r(auto &&fn) {
-    for (auto ri = m_n; ri != 0; ri--) {
+    for (auto ri = m_dense.size(); ri != 0; ri--) {
       const auto &[v, id] = m_dense[ri - 1];
       fn(v, id);
     }
@@ -68,14 +67,14 @@ public:
     if (!sid)
       return;
 
-    swap(sid - 1, m_n - 1);
+    swap(sid - 1, m_dense.size() - 1);
     sid = 0;
-    m_n--;
+    m_dense.pop_back();
   }
 
   constexpr void sort(auto &&fn) {
-    for (auto i = 0U; i < m_n; i++) {
-      for (auto j = i + 1; j < m_n; j++) {
+    for (auto i = 0U; i < m_dense.size(); i++) {
+      for (auto j = i + 1; j < m_dense.size(); j++) {
         auto a = m_dense[i].value;
         auto b = m_dense[j].value;
         if (fn(a, b) > 0)
@@ -84,11 +83,13 @@ public:
     }
   }
 
-  [[nodiscard]] constexpr auto *begin() const noexcept { return &m_dense[0]; }
-  [[nodiscard]] constexpr auto *end() const noexcept { return &m_dense[m_n]; }
-  [[nodiscard]] constexpr auto *begin() noexcept { return &m_dense[0]; }
-  [[nodiscard]] constexpr auto *end() noexcept { return &m_dense[m_n]; }
-  [[nodiscard]] constexpr auto size() const noexcept { return m_n; }
+  [[nodiscard]] constexpr auto *begin() const noexcept {
+    return m_dense.begin();
+  }
+  [[nodiscard]] constexpr auto *end() const noexcept { return m_dense.end(); }
+  [[nodiscard]] constexpr auto *begin() noexcept { return m_dense.begin(); }
+  [[nodiscard]] constexpr auto *end() noexcept { return m_dense.end(); }
+  [[nodiscard]] constexpr auto size() const noexcept { return m_dense.size(); }
 };
 } // namespace pog
 
