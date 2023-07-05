@@ -8,5 +8,8 @@ struct node {
 class list {
 public:
   [[nodiscard]] constexpr bool empty() const noexcept { return true; }
+
+  constexpr unsigned pop() noexcept { return 1; }
+  constexpr void add(unsigned v) noexcept {}
 };
 } // namespace pog::ll

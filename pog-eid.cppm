@@ -25,10 +25,10 @@ public:
     if (m_recycle_list.empty()) {
       return eid{++m_max};
     }
-    return eid{};
+    return eid{m_recycle_list.pop()};
   }
 
-  constexpr void dealloc(eid e) {}
+  constexpr void dealloc(eid e) { m_recycle_list.add(e); }
 };
 } // namespace pog
 
