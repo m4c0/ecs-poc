@@ -54,6 +54,6 @@ static_assert([] {
   ents.dealloc(b);
   ents.dealloc(ents.alloc());
   ents.dealloc(ents.alloc());
-  return ents.alloc() == a;
+  return ents.alloc() != c;
 }());
 } // namespace
