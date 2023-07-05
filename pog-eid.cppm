@@ -19,8 +19,6 @@ export class entity_list {
   unsigned m_max{};
 
 public:
-  explicit constexpr entity_list() {}
-
   [[nodiscard]] constexpr eid alloc() {
     if (m_recycle_list.empty()) {
       return eid{++m_max};
@@ -29,6 +27,8 @@ public:
   }
 
   constexpr void dealloc(eid e) { m_recycle_list.add(e); }
+
+  [[nodiscard]] constexpr auto max_elements() const noexcept { return m_max; }
 };
 } // namespace pog
 
