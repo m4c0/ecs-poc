@@ -1,5 +1,5 @@
 export module pog:eid;
-import hai;
+import :ll;
 
 namespace pog {
 export class marker {};
@@ -15,53 +15,38 @@ public:
 };
 
 export class entity_list {
-  hai::varray<bool> m_allocs;
+  ll::list m_recycle_list{};
+  unsigned m_max{};
 
 public:
-  explicit constexpr entity_list(unsigned max_ents) : m_allocs{max_ents} {}
+  explicit constexpr entity_list() {}
 
   [[nodiscard]] constexpr eid alloc() {
-    if (m_allocs.size() < m_allocs.capacity()) {
-      m_allocs.push_back(true);
-      return eid{m_allocs.size()};
+    if (m_recycle_list.empty()) {
+      return eid{++m_max};
     }
-
-    for (auto i = 0U; i < m_allocs.size(); i++) {
-      if (m_allocs[i])
-        continue;
-
-      m_allocs[i] = true;
-      return eid{i + 1};
-    }
-
-    return eid{0};
+    return eid{};
   }
 
-  constexpr void dealloc(eid e) { m_allocs[e - 1] = false; }
+  constexpr void dealloc(eid e) {}
 };
 } // namespace pog
 
 namespace {
 static_assert([] {
-  pog::entity_list ents{3};
+  pog::entity_list ents{};
   return ents.alloc() == 1 && ents.alloc() == 2 && ents.alloc() == 3;
 }());
 static_assert([] {
-  pog::entity_list ents{3};
-  auto a = ents.alloc();
-  auto b = ents.alloc();
-  auto c = ents.alloc();
-  return !ents.alloc();
-}());
-static_assert([] {
-  pog::entity_list ents{3};
+  pog::entity_list ents{};
   auto a = ents.alloc();
   auto b = ents.alloc();
   ents.dealloc(ents.alloc());
-  return ents.alloc();
+  auto c = ents.alloc();
+  return c && c != a && c != b;
 }());
 static_assert([] {
-  pog::entity_list ents{3};
+  pog::entity_list ents{};
   auto a = ents.alloc();
   auto b = ents.alloc();
   auto c = ents.alloc();
@@ -69,6 +54,6 @@ static_assert([] {
   ents.dealloc(b);
   ents.dealloc(ents.alloc());
   ents.dealloc(ents.alloc());
-  return ents.alloc();
+  return ents.alloc() == a;
 }());
 } // namespace

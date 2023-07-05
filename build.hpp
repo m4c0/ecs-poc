@@ -8,6 +8,7 @@ auto pog() {
 
   auto m = unit::create<mod>("pog");
   m->add_wsdep("hai", hai());
+  m->add_part("ll");
   m->add_part("eid");
   m->add_part("grid");
   m->add_part("map");
