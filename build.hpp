@@ -14,7 +14,6 @@ auto pog() {
   m->add_part("eid");
   m->add_part("grid");
   m->add_part("map");
-  m->add_part("quadtree");
   m->add_part("rtree");
   m->add_part("single");
   m->add_part("spset");
