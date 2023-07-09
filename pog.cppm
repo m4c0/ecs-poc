@@ -6,3 +6,7 @@ export import :map;
 export import :rtree;
 export import :single;
 export import :spset;
+
+namespace pog {
+export template class btree<aabb>;
+}
