@@ -32,7 +32,7 @@ public:
     return found;
   }
 
-  [[nodiscard]] auto remove(eid id, aabb area) {
+  auto remove(eid id, aabb area) {
     ::rtree::db::current() = &m_storage;
     return m_tree.remove(to_nnid(id), area);
   }
