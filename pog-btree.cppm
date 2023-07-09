@@ -1,6 +1,6 @@
 export module pog:btree;
 import :eid;
-export import btree;
+import btree;
 
 namespace pog {
 export template <typename Tp> class btree {
