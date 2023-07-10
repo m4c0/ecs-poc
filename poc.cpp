@@ -23,10 +23,10 @@ struct lifeness {
 };
 
 struct ec {
-  pog::entity_list e{max};
+  pog::entity_list e{};
   pog::grid<width, height, max> coords;
-  pog::sparse_set<rigid_body> bodies{max};
-  pog::sparse_set<lifeness> alives{max};
+  pog::sparse_set<rigid_body> bodies{};
+  pog::sparse_set<lifeness> alives{};
 };
 
 //------ Entity creation
