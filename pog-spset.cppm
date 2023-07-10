@@ -93,12 +93,12 @@ public:
     if (!id)
       return;
 
-    auto sid = m_index.get(nnid{id});
-    if (!sid)
+    auto idx = m_index.get(nnid{id});
+    if (!idx)
       return;
 
-    swap(sid.index(), m_dense.size() - 1);
-    m_index.remove(sid);
+    swap(idx.index(), m_dense.size() - 1);
+    m_index.remove(nnid{id});
     m_dense.pop_back();
   }
 
@@ -194,14 +194,14 @@ static_assert([] {
   auto set = build_set();
   set.remove(pog::eid{20});
   set.remove(pog::eid{40});
-  return set_matches(set, 30) && set_hasnt(20, 40);
+  return set_matches(set, 30) && set_hasnt(set, 20, 40);
 }());
 static_assert([] {
   auto set = build_set();
   set.remove(pog::eid{20});
   set.remove(pog::eid{40});
   set.remove(pog::eid{30});
-  return set_matches(set) && set_hasnt(20, 30, 40);
+  return set_matches(set) && set_hasnt(set, 20, 30, 40);
 }());
 static_assert([] {
   auto set = build_set();
@@ -212,7 +212,7 @@ static_assert([] {
   auto set = build_set();
   set.remove_if([](auto v, auto id) { return true; });
   set.sort([](auto a, auto b) { return a - b; });
-  return set_matches(set) && set_hasnt(20, 30, 40);
+  return set_matches(set) && set_hasnt(set, 20, 30, 40);
 }());
 static_assert([] {
   auto set = build_set();
