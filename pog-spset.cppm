@@ -154,6 +154,11 @@ static constexpr bool set_matches(const pog::sparse_set<int> &set,
 
   return true;
 }
+static constexpr bool set_hasnt(const pog::sparse_set<int> &set, auto... ids) {
+  if ((set.has(pog::eid{static_cast<unsigned>(ids)}) && ...))
+    throw 0;
+  return true;
+}
 
 static_assert([] {
   auto set = build_set();
@@ -171,7 +176,7 @@ static_assert([] {
 static_assert([] {
   auto set = build_set();
   set.remove(pog::eid{40});
-  return set_matches(set, 20, 30);
+  return set_matches(set, 20, 30) && set_hasnt(set, 40);
 }());
 static_assert([] {
   auto set = build_set();
@@ -183,31 +188,31 @@ static_assert([] {
 static_assert([] {
   auto set = build_set();
   set.remove(pog::eid{30});
-  return set_matches(set, 20, 40);
+  return set_matches(set, 20, 40) && set_hasnt(set, 30);
 }());
 static_assert([] {
   auto set = build_set();
   set.remove(pog::eid{20});
   set.remove(pog::eid{40});
-  return set_matches(set, 30);
+  return set_matches(set, 30) && set_hasnt(20, 40);
 }());
 static_assert([] {
   auto set = build_set();
   set.remove(pog::eid{20});
   set.remove(pog::eid{40});
   set.remove(pog::eid{30});
-  return set_matches(set);
+  return set_matches(set) && set_hasnt(20, 30, 40);
 }());
 static_assert([] {
   auto set = build_set();
   set.remove_if([](auto v, auto id) { return v == 3 && id == 30; });
-  return set_matches(set, 20, 40);
+  return set_matches(set, 20, 40) && set_hasnt(set, 30);
 }());
 static_assert([] {
   auto set = build_set();
   set.remove_if([](auto v, auto id) { return true; });
   set.sort([](auto a, auto b) { return a - b; });
-  return set_matches(set);
+  return set_matches(set) && set_hasnt(20, 30, 40);
 }());
 static_assert([] {
   auto set = build_set();
