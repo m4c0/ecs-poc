@@ -1,5 +1,6 @@
 export module pog:rtree;
 import :eid;
+import :spset;
 import rtree;
 
 namespace pog {
@@ -8,16 +9,19 @@ export using aabb = rtree::aabb;
 export class rtree {
   ::rtree::db::storage m_storage{};
   ::rtree::tree m_tree{};
+  using rid = ::rtree::db::nnid;
 
-  constexpr static auto to_nnid(eid id) noexcept {
-    return ::rtree::db::nnid{id};
-  }
+  sparse_set<aabb> m_index{};
 
 public:
   void add(eid id, aabb area) {
     ::rtree::db::current() = &m_storage;
-    m_tree.insert(to_nnid(id), area);
+    m_tree.insert(rid{id}, area);
+    m_index.add(id, area);
   }
+
+  [[nodiscard]] aabb get(eid id) { return m_index.get(id); }
+  [[nodiscard]] bool has(eid id) { return m_index.has(id); }
 
   void for_each_in(aabb area, auto &&fn) {
     ::rtree::db::current() = &m_storage;
@@ -32,9 +36,11 @@ public:
     return found;
   }
 
-  auto remove(eid id, aabb area) {
+  auto remove(eid id) {
     ::rtree::db::current() = &m_storage;
-    return m_tree.remove(to_nnid(id), area);
+    auto area = get(id);
+    m_index.remove(id);
+    return m_tree.remove(rid{id}, area);
   }
 };
 } // namespace pog
