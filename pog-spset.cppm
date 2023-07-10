@@ -1,15 +1,13 @@
 export module pog:spset;
 import :eid;
+import btree;
 import hai;
+import traits;
 
 namespace pog {
-// TODO: consider a different structure to store the "sparse index"
 export template <typename Tp> class sparse_set {
   static constexpr const auto initial_dense_cap = 16;
   static constexpr const auto dense_cap_increase = 16;
-
-  static constexpr const auto initial_sparse_cap = 16;
-  static constexpr const auto sparse_cap_increase = 16;
 
   struct dense {
     Tp value;
@@ -17,7 +15,10 @@ export template <typename Tp> class sparse_set {
   };
 
   hai::varray<dense> m_dense;
-  hai::array<unsigned> m_sparse;
+  btree::db::storage m_storage{};
+  btree::tree m_index{&m_storage};
+
+  using nnid = btree::db::nnid;
 
   static constexpr void swapy(auto &a, auto &b) noexcept {
     auto tmp = a;
@@ -29,33 +30,51 @@ export template <typename Tp> class sparse_set {
       return;
 
     swapy(m_dense[a], m_dense[b]);
-    swapy(m_sparse[m_dense[a].id], m_sparse[m_dense[b].id]);
+
+    m_index.remove(nnid{m_dense[a].id});
+    m_index.remove(nnid{m_dense[b].id});
+
+    m_index.insert(nnid{m_dense[a].id}, nnid(a));
+    m_index.insert(nnid{m_dense[b].id}, nnid(b));
   }
 
 public:
-  explicit constexpr sparse_set()
-      : m_dense{initial_dense_cap}, m_sparse{initial_sparse_cap} {}
+  explicit constexpr sparse_set() : m_dense{initial_dense_cap} {}
+
+  sparse_set(const sparse_set &) = delete;
+  sparse_set &operator=(const sparse_set &) = delete;
+
+  constexpr sparse_set(sparse_set &&o)
+      : m_dense{traits::move(o.m_dense)}, m_storage{traits::move(o.m_storage)} {
+    m_index.set_root(o.m_index.root());
+  }
+  constexpr sparse_set &operator=(sparse_set &&o) {
+    m_dense = traits::move(o.m_dense);
+    m_storage = traits::move(o.m_storage);
+    m_index.set_root(o.m_index.root());
+  }
 
   constexpr void add(eid id, Tp v) {
-    // TODO: delete "dense" if `id` exists or fail?
+    // TODO: upsert or fail?
+
     if (m_dense.size() == m_dense.capacity())
       m_dense.add_capacity(dense_cap_increase);
-    if (m_sparse.size() < id + 1)
-      m_sparse.add_capacity(id - m_sparse.size() + sparse_cap_increase);
 
+    m_index.insert(nnid{id}, btree::db::nnid(m_dense.size()));
     m_dense.push_back(dense{v, id});
-    m_sparse[id] = m_dense.size();
   }
 
   constexpr void update(eid id, Tp v) {
     // TODO: upsert or fail?
-    m_dense[m_sparse[id] - 1].value = v;
+    m_dense[m_index.get(nnid{id}).index()].value = v;
   }
 
   [[nodiscard]] constexpr Tp get(eid id) const noexcept {
-    return has(id) ? m_dense[m_sparse[id] - 1].value : Tp{};
+    return has(id) ? m_dense[m_index.get(nnid{id}).index()].value : Tp{};
   }
-  [[nodiscard]] constexpr bool has(eid id) const { return m_sparse[id] != 0; }
+  [[nodiscard]] constexpr bool has(eid id) const {
+    return m_index.has(nnid{id});
+  }
 
   constexpr void for_each_r(auto &&fn) {
     for (auto ri = m_dense.size(); ri != 0; ri--) {
@@ -74,12 +93,12 @@ public:
     if (!id)
       return;
 
-    auto &sid = m_sparse[id];
+    auto sid = m_index.get(nnid{id});
     if (!sid)
       return;
 
-    swap(sid - 1, m_dense.size() - 1);
-    sid = 0;
+    swap(sid.index(), m_dense.size() - 1);
+    m_index.remove(sid);
     m_dense.pop_back();
   }
 
@@ -123,6 +142,9 @@ static constexpr bool set_matches(const pog::sparse_set<int> &set,
   auto p = set.begin();
   unsigned ns[] = {static_cast<unsigned>(ids)...};
   for (auto n : ns) {
+    if (set.get(pog::eid{n}) != n / 10)
+      throw 4;
+
     const auto &[v, id] = *p++;
     if (id != pog::eid{n})
       throw 2;
