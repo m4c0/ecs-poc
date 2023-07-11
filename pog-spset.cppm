@@ -70,7 +70,8 @@ public:
   }
 
   [[nodiscard]] constexpr Tp get(eid id) const noexcept {
-    return has(id) ? m_dense[m_index.get(nnid{id}).index()].value : Tp{};
+    auto i = m_index.get(nnid{id});
+    return i ? m_dense[i.index()].value : Tp{};
   }
   [[nodiscard]] constexpr bool has(eid id) const {
     return m_index.has(nnid{id});
