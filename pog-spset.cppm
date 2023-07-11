@@ -103,17 +103,6 @@ public:
     m_dense.pop_back();
   }
 
-  constexpr void sort(auto &&fn) {
-    for (auto i = 0U; i < m_dense.size(); i++) {
-      for (auto j = i + 1; j < m_dense.size(); j++) {
-        auto a = m_dense[i].value;
-        auto b = m_dense[j].value;
-        if (fn(a, b) > 0)
-          swap(i, j);
-      }
-    }
-  }
-
   [[nodiscard]] constexpr auto *begin() const noexcept {
     return m_dense.begin();
   }
@@ -171,11 +160,6 @@ static_assert([] {
 }());
 static_assert([] {
   auto set = build_set();
-  set.sort([](auto a, auto b) { return a - b; });
-  return set_matches(set, 20, 30, 40);
-}());
-static_assert([] {
-  auto set = build_set();
   set.remove(pog::eid{40});
   return set_matches(set, 20, 30) && set_hasnt(set, 40);
 }());
@@ -183,8 +167,7 @@ static_assert([] {
   auto set = build_set();
   set.remove(pog::eid{20});
   set.add(pog::eid{10}, 1);
-  set.sort([](auto a, auto b) { return a - b; });
-  return set_matches(set, 10, 30, 40);
+  return set_matches(set, 30, 40, 10);
 }());
 static_assert([] {
   auto set = build_set();
@@ -212,7 +195,6 @@ static_assert([] {
 static_assert([] {
   auto set = build_set();
   set.remove_if([](auto v, auto id) { return true; });
-  set.sort([](auto a, auto b) { return a - b; });
   return set_matches(set) && set_hasnt(set, 20, 30, 40);
 }());
 static_assert([] {
@@ -222,8 +204,7 @@ static_assert([] {
   set.add(pog::eid{30}, 3);
   set.add(pog::eid{20}, 2);
   set.add(pog::eid{10}, 1);
-  set.sort([](auto a, auto b) { return a - b; });
-  return set_matches(set, 10, 20, 30, 40);
+  return set_matches(set, 40, 30, 20, 10);
 }());
 static_assert([] {
   build_set().add(pog::eid{50}, 5);
