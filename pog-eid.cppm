@@ -30,6 +30,13 @@ public:
 
   [[nodiscard]] constexpr auto max_elements() const noexcept { return m_max; }
 };
+
+export class entity_provider {
+  entity_list m_e;
+
+public:
+  auto &e() noexcept { return m_e; }
+};
 } // namespace pog
 
 namespace {
