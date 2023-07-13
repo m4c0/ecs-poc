@@ -33,10 +33,10 @@ public:
     return found;
   }
 
-  constexpr auto remove(eid id) {
-    auto area = get(id);
-    m_index.remove(id);
-    return m_tree.remove(rid{id}, area);
+  constexpr void remove(eid id) {
+    if (has(id) && m_tree.remove(rid{id}, get(id))) {
+      m_index.remove(id);
+    }
   }
 };
 } // namespace pog
@@ -64,6 +64,12 @@ static_assert([] {
     throw 0;
   if (t.has(pog::eid{10}))
     throw 0;
+
+  t.remove(pog::eid{20});
+  if (t.has(pog::eid{10}) || t.has(pog::eid{20}))
+    throw 0;
+
+  t.remove(pog::eid{40});
 
   return true;
 }());
