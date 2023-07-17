@@ -1,20 +1,12 @@
 export module pog:spset;
+import :dense;
 import :eid;
 import btree;
-import hai;
 import traits;
 
 namespace pog {
 export template <typename Tp> class sparse_set {
-  static constexpr const auto initial_dense_cap = 16;
-  static constexpr const auto dense_cap_increase = 16;
-
-  struct dense {
-    Tp value;
-    eid id;
-  };
-
-  hai::varray<dense> m_dense;
+  dense_set<Tp> m_dense{};
   btree::db::storage m_storage{};
   btree::tree m_index{&m_storage};
 
@@ -29,17 +21,17 @@ export template <typename Tp> class sparse_set {
     if (a == b)
       return;
 
-    swapy(m_dense[a], m_dense[b]);
+    swapy(m_dense.get(a), m_dense.get(b));
 
-    m_index.remove(nnid{m_dense[a].id});
-    m_index.remove(nnid{m_dense[b].id});
+    m_index.remove(nnid{m_dense.get(a).id});
+    m_index.remove(nnid{m_dense.get(b).id});
 
-    m_index.insert(nnid{m_dense[a].id}, nnid(a));
-    m_index.insert(nnid{m_dense[b].id}, nnid(b));
+    m_index.insert(nnid{m_dense.get(a).id}, nnid(a));
+    m_index.insert(nnid{m_dense.get(b).id}, nnid(b));
   }
 
 public:
-  explicit constexpr sparse_set() : m_dense{initial_dense_cap} {}
+  constexpr sparse_set() = default;
 
   sparse_set(const sparse_set &) = delete;
   sparse_set &operator=(const sparse_set &) = delete;
@@ -55,13 +47,8 @@ public:
   }
 
   constexpr void add(eid id, Tp v) {
-    // TODO: upsert or fail?
-
-    if (m_dense.size() == m_dense.capacity())
-      m_dense.add_capacity(dense_cap_increase);
-
-    m_index.insert(nnid{id}, btree::db::nnid(m_dense.size()));
-    m_dense.push_back(dense{v, id});
+    auto idx = m_dense.add(id, v);
+    m_index.insert(nnid{id}, btree::db::nnid(idx));
   }
 
   constexpr void update(eid id, Tp v) {
@@ -71,7 +58,7 @@ public:
 
   [[nodiscard]] constexpr Tp get(eid id) const noexcept {
     auto i = m_index.get(nnid{id});
-    return i ? m_dense[i.index()].value : Tp{};
+    return i ? m_dense.get(i.index()).value : Tp{};
   }
   [[nodiscard]] constexpr bool has(eid id) const {
     return m_index.has(nnid{id});
@@ -79,14 +66,14 @@ public:
 
   constexpr void for_each_r(auto &&fn) {
     for (auto ri = m_dense.size(); ri != 0; ri--) {
-      const auto &[v, id] = m_dense[ri - 1];
-      fn(v, id);
+      const auto &[id, v] = m_dense.get(ri - 1);
+      fn(id, v);
     }
   }
 
   constexpr void remove_if(auto &&fn) {
-    for_each_r([&](auto v, auto id) {
-      if (fn(v, id))
+    for_each_r([&](auto id, auto v) {
+      if (fn(id, v))
         remove(id);
     });
   }
@@ -135,7 +122,7 @@ static constexpr bool set_matches(const pog::sparse_set<int> &set,
     if (set.get(pog::eid{n}) != n / 10)
       throw 4;
 
-    const auto &[v, id] = *p++;
+    const auto &[id, v] = *p++;
     if (id != pog::eid{n})
       throw 2;
     if (v != n / 10)
@@ -189,17 +176,17 @@ static_assert([] {
 }());
 static_assert([] {
   auto set = build_set();
-  set.remove_if([](auto v, auto id) { return v == 3 && id == 30; });
+  set.remove_if([](auto id, auto v) { return v == 3 && id == 30; });
   return set_matches(set, 20, 40) && set_hasnt(set, 30);
 }());
 static_assert([] {
   auto set = build_set();
-  set.remove_if([](auto v, auto id) { return true; });
+  set.remove_if([](auto id, auto v) { return true; });
   return set_matches(set) && set_hasnt(set, 20, 30, 40);
 }());
 static_assert([] {
   auto set = build_set();
-  set.remove_if([](auto v, auto id) { return true; });
+  set.remove_if([](auto id, auto v) { return true; });
   set.add(pog::eid{40}, 4);
   set.add(pog::eid{30}, 3);
   set.add(pog::eid{20}, 2);
