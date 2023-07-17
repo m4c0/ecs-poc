@@ -53,7 +53,7 @@ public:
 
   constexpr void update(eid id, Tp v) {
     // TODO: upsert or fail?
-    m_dense[m_index.get(nnid{id}).index()].value = v;
+    m_dense.get(m_index.get(nnid{id}).index()).value = v;
   }
 
   [[nodiscard]] constexpr Tp get(eid id) const noexcept {
