@@ -44,6 +44,7 @@ public:
     m_dense = traits::move(o.m_dense);
     m_storage = traits::move(o.m_storage);
     m_index.set_root(o.m_index.root());
+    return *this;
   }
 
   constexpr void add(eid id, Tp v) {
