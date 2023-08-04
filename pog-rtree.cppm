@@ -2,6 +2,7 @@ export module pog:rtree;
 import :eid;
 import :spset;
 import rtree;
+import traits;
 
 namespace pog {
 export using aabb = rtree::aabb;
@@ -14,6 +15,20 @@ export class rtree {
   sparse_set<aabb> m_index{};
 
 public:
+  constexpr rtree() = default;
+
+  rtree(const rtree &) = delete;
+  rtree &operator=(const rtree &) = delete;
+
+  constexpr rtree(rtree &&o) : m_storage{traits::move(o.m_storage)} {
+    m_tree.set_root(o.m_tree.root());
+  }
+  constexpr rtree &operator=(rtree &&o) {
+    m_storage = traits::move(o.m_storage);
+    m_tree.set_root(o.m_tree.root());
+    return *this;
+  }
+
   constexpr void add(eid id, aabb area) {
     m_tree.insert(rid{id}, area);
     m_index.add(id, area);
