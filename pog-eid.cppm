@@ -32,7 +32,7 @@ public:
 };
 
 export class entity_provider {
-  entity_list m_e;
+  entity_list m_e{};
 
 public:
   auto &e() noexcept { return m_e; }
