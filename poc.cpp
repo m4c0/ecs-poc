@@ -72,7 +72,7 @@ void gen_mobs(ec &ec) {
 void move_mobs(ec &ec) {
   // Simulates mob movement
   // All mob wants to go to up and kills on contact
-  for (const auto [alive, id] : ec.alives) {
+  for (const auto [id, alive] : ec.alives) {
     pog::grid_coord c = ec.coords.get(id);
     c.y--;
 
@@ -88,7 +88,7 @@ void move_mobs(ec &ec) {
 }
 
 void dead_cleanup(ec &ec) {
-  for (const auto [a, id] : ec.alives) {
+  for (const auto [id, a] : ec.alives) {
     if (a.alive)
       continue;
 
@@ -97,7 +97,7 @@ void dead_cleanup(ec &ec) {
     ec.bodies.remove(id);
     ec.e.dealloc(id);
   }
-  ec.alives.remove_if([](auto l, auto id) { return !l.alive; });
+  ec.alives.remove_if([](auto id, auto l) { return !l.alive; });
 }
 
 void output(const ec &ec) {
