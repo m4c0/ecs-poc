@@ -14,13 +14,5 @@ auto pog() {
   m->add_wsdep("btree", btree());
   m->add_wsdep("rtree", rtree());
   m->add_wsdep("traits", traits());
-  m->add_part("ll");
-  m->add_part("eid");
-  m->add_part("grid");
-  m->add_part("map");
-  m->add_part("single");
-  m->add_part("dense");
-  m->add_part("spset");
-  m->add_part("rtree");
   return m;
 }
