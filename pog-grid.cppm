@@ -19,7 +19,7 @@ export template <unsigned W, unsigned H, unsigned Max> class grid {
 
 public:
   constexpr void put(eid id, grid_coord c) {
-    m_i2c[id] = {c.x, c.y, true};
+    m_i2c[id] = {{c.x, c.y}, true};
     m_c2i[c.y][c.x] = id;
   }
   constexpr void update(eid id, grid_coord c) {
